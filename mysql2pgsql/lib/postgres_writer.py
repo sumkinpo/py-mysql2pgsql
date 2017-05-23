@@ -244,17 +244,22 @@ class PostgresWriter(object):
             table_sql.append(table_comments)
         return (table_sql, serial_key_sql)
 
-    def write_indexes(self, table):
+    def write_primary_key(self, table):
         index_sql = []
         primary_index = [idx for idx in table.indexes if idx.get('primary', None)]
         index_prefix = self.index_prefix
         if primary_index:
-            index_sql.append('ALTER TABLE "%(table_name)s" ADD CONSTRAINT "%(index_name)s_pkey" PRIMARY KEY(%(column_names)s);' % {
+            index_sql.append(
+                'ALTER TABLE "%(table_name)s" ADD CONSTRAINT "%(index_name)s_pkey" PRIMARY KEY(%(column_names)s);' % {
                     'table_name': table.name,
-                    'index_name': '%s%s_%s' % (index_prefix, table.name, 
-                                        '_'.join(primary_index[0]['columns'])),
+                    'index_name': '%s%s_%s' % (index_prefix, table.name,
+                                               '_'.join(primary_index[0]['columns'])),
                     'column_names': ', '.join('"%s"' % col for col in primary_index[0]['columns']),
-                    })
+                })
+        return index_sql
+
+    def write_other_indexes(self, table):
+        index_sql = []
         for index in table.indexes:
             if 'primary' in index:
                 continue

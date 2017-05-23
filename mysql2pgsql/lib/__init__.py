@@ -50,6 +50,7 @@ def status_logger(f):
     create_template = 'CREATING TABLE %s'
     constraints_template = 'ADDING CONSTRAINTS ON %s'
     write_contents_template = 'WRITING DATA TO %s'
+    write_primary_key_template = 'ADDING PRIMARY KEYS TO %s'
     index_template = 'ADDING INDEXES TO %s'
     trigger_template = 'ADDING TRIGGERS TO %s'
     statuses = {
@@ -69,7 +70,11 @@ def status_logger(f):
             'start': start_template % write_contents_template,
             'finish': finish_template % write_contents_template,
             },
-        'write_indexes': {
+        'write_primary_key': {
+            'start': start_template % write_primary_key_template,
+            'finish': finish_template % write_primary_key_template,
+        },
+        'write_other_indexes': {
             'start': start_template % index_template,
             'finish': finish_template % index_template,
             },
