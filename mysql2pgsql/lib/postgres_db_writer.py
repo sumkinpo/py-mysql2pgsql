@@ -78,6 +78,8 @@ class PostgresDbWriter(PostgresWriter):
             'password': str(db_options.get('password', None)) or '',
             'user': str(db_options['username']),
             }
+        if 'sslmode' in db_options:
+            self.db_options['sslmode'] = str(db_options['sslmode'])
         if ':' in str(db_options['database']):
             self.db_options['database'], self.schema = self.db_options['database'].split(':')
         else:
