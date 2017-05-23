@@ -12,9 +12,10 @@ class PostgresWriter(object):
     """Base class for :py:class:`mysql2pgsql.lib.postgres_file_writer.PostgresFileWriter`
     and :py:class:`mysql2pgsql.lib.postgres_db_writer.PostgresDbWriter`.
     """
-    def __init__(self, tz=False, index_prefix=''):
+    def __init__(self, tz=False, index_prefix='', deferred_fks=True):
         self.column_types = {}
         self.index_prefix = index_prefix
+        self.deferred_fks = deferred_fks
         if tz:
             self.tz = timezone('UTC')
             self.tz_offset = '+00:00'
@@ -280,12 +281,13 @@ class PostgresWriter(object):
         for key in table.foreign_keys:
             constraint_sql.append("""ALTER TABLE "%(table_name)s" ADD CONSTRAINT "%(name)s"
             FOREIGN KEY ("%(column_name)s")
-            REFERENCES "%(ref_table_name)s" (%(ref_column_name)s);""" % {
+            REFERENCES "%(ref_table_name)s" (%(ref_column_name)s) %(deferred)s;""" % {
                 'name': key['name'],
                 'table_name': table.name,
                 'column_name': key['column'],
                 'ref_table_name': key['ref_table'],
-                'ref_column_name': key['ref_column']
+                'ref_column_name': key['ref_column'],
+                'deferred': self.deferred_fks,
             })
         return constraint_sql
 
