@@ -80,6 +80,8 @@ class PostgresDbWriter(PostgresWriter):
             }
         if 'sslmode' in db_options:
             self.db_options['sslmode'] = str(db_options['sslmode'])
+        if 'sslrootcert' in db_options:
+            self.db_options['sslrootcert'] = str(db_options['sslrootcert'])
         if ':' in str(db_options['database']):
             self.db_options['database'], self.schema = self.db_options['database'].split(':')
         else:
