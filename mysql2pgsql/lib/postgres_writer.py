@@ -69,7 +69,7 @@ class PostgresWriter(object):
             elif column['type'] == 'double precision':
                 default = (" DEFAULT %s" % (column['default'] if t(column['default']) else 'NULL')) if t(default) else None
                 return default, 'double precision'
-            elif column['type'] == 'datetime':
+            elif column['type'].startswith('datetime'):
                 default = None
                 return default, 'timestamp without time zone'
             elif column['type'] == 'date':
