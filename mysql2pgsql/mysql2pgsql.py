@@ -28,7 +28,9 @@ class Mysql2Pgsql(object):
         else:
             writer = PostgresDbWriter(self.file_options['destination']['postgres'], self.run_options.verbose)
 
-        Converter(reader, writer, self.file_options, self.run_options.verbose).convert()
+        continue_point = self.file_options.get('continue_from', None)
+
+        Converter(reader, writer, self.file_options, self.run_options.verbose).convert(continue_point)
 
     def _get_file(self, file_path):
         return codecs.open(file_path, 'wb', 'utf-8')
