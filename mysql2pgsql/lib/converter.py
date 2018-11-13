@@ -65,7 +65,7 @@ class Converter(object):
             if continue_arg is not None:
                 found = False
                 for table in tables:
-                    if continue_arg == table:
+                    if continue_arg == table.name:
                         found = True
                     if found:
                         self.writer.write_contents(table, self.reader)
