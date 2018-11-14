@@ -9,6 +9,10 @@ from . import print_row_progress, status_logger
 from .postgres_writer import PostgresWriter
 
 
+class RowLimitError(Exception):
+    pass
+
+
 class PostgresDbWriter(PostgresWriter):
     """Class used to stream DDL and/or data
     from a MySQL server to a PostgreSQL.
@@ -28,11 +32,14 @@ class PostgresDbWriter(PostgresWriter):
           - `processor`:
           - `verbose`: whether or not to log progress to :py:obj:`stdout`
         """
-        def __init__(self, table, data, processor, verbose=False):
+        def __init__(self, table, data, processor, verbose=False, row_limit=None):
             self.data = iter(data)
             self.table = table
             self.processor = processor
             self.verbose = verbose
+            self.row_limit = row_limit
+            self.eof_found = False
+            self._row_counter = 0
 
             if verbose:
                 self.idx = 1
@@ -40,10 +47,23 @@ class PostgresDbWriter(PostgresWriter):
                 self.prev_val_len = 0
                 self.prev_idx = 0
 
+        def flush_row_counter(self):
+            self._row_counter = 0
+
         def readline(self, *args, **kwargs):
             try:
+                if self.row_limit is not None and self._row_counter >= self.row_limit:
+                    raise RowLimitError()
                 row = list(self.data.next())
+                self._row_counter += 1
+            except RowLimitError:
+                # fake stop iteration
+                if self.verbose:
+                    print('')
+                return ''
             except StopIteration:
+                # real stop iteration
+                self.eof_found = True
                 if self.verbose:
                     print('')
                 return ''
@@ -109,13 +129,21 @@ class PostgresDbWriter(PostgresWriter):
             self.conn.commit()
 
     def copy_from(self, file_obj, table_name, columns):
-        with closing(self.conn.cursor()) as cur:
-            cur.copy_from(file_obj,
-                          table=table_name,
-                          columns=columns
-                          )
-
-        self.conn.commit()
+        file_obj.row_limit = 1000000
+        while not file_obj.eof_found:
+            print('table %s: new transaction(rowlimit: %s)' % (table_name, file_obj.row_limit))
+            with closing(self.conn.cursor()) as cur:
+                cur.copy_from(file_obj,
+                              table=table_name,
+                              columns=columns
+                              )
+            self.conn.commit()
+            file_obj.flush_row_counter()
+            # debug message
+            if file_obj.eof_found:
+                print('table %s: EOF found' % table_name)
+            else:
+                print('table %s: EOF not found' % table_name)
 
     def close(self):
         """Closes connection to the PostgreSQL server"""
