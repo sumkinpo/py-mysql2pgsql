@@ -131,7 +131,7 @@ class PostgresDbWriter(PostgresWriter):
     def copy_from(self, file_obj, table_name, columns):
         file_obj.row_limit = 1000000
         while not file_obj.eof_found:
-            print('table %s: new transaction(rowlimit: %s)' % (table_name, file_obj.row_limit))
+            print('table %s: new insert(rowlimit: %s)' % (table_name, file_obj.row_limit))
             with closing(self.conn.cursor()) as cur:
                 cur.copy_from(file_obj,
                               table=table_name,
@@ -141,9 +141,9 @@ class PostgresDbWriter(PostgresWriter):
             file_obj.flush_row_counter()
             # debug message
             if file_obj.eof_found:
-                print('table %s: EOF found' % table_name)
+                print('table %s: too many rows. interrupt+commit' % table_name)
             else:
-                print('table %s: EOF not found' % table_name)
+                print('table %s: insert completed' % table_name)
 
     def close(self):
         """Closes connection to the PostgreSQL server"""
