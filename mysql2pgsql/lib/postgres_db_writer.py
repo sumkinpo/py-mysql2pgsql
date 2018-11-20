@@ -7,6 +7,7 @@ import psycopg2
 
 from . import print_row_progress, status_logger
 from .postgres_writer import PostgresWriter
+from .master_search import master_search
 
 
 class RowLimitError(Exception):
@@ -105,6 +106,13 @@ class PostgresDbWriter(PostgresWriter):
         self.open()
 
     def open(self):
+        if len(self.db_options['host'].split(',')) > 1:
+            print('multiple servers found server. looking for master')
+            self.db_options['host'] = master_search(self.db_options['host'].split(','),
+                                                    self.db_options['port'],
+                                                    self.db_options['database'],
+                                                    self.db_options['user'],
+                                                    self.db_options['password'])
         self.conn = psycopg2.connect(**self.db_options)
         with closing(self.conn.cursor()) as cur:
             if self.schema:
