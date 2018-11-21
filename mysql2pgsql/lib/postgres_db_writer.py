@@ -148,7 +148,7 @@ class PostgresDbWriter(PostgresWriter):
             self.conn.commit()
             file_obj.flush_row_counter()
             # debug message
-            if file_obj.eof_found:
+            if not file_obj.eof_found:
                 print('table %s: too many rows. interrupt+commit' % table_name)
             else:
                 print('table %s: insert completed' % table_name)
