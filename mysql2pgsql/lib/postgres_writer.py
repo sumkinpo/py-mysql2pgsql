@@ -116,7 +116,7 @@ class PostgresWriter(object):
             hash_key = hash(frozenset(column.items()))
             column_type = self.column_types[hash_key] if hash_key in self.column_types else self.column_type(column)
             if row[index] == None and ('timestamp' not in column_type or not column['default']):
-                row[index] = '\N'
+                row[index] = r'\N'
             elif row[index] == None and column['default']:
                 row[index] = '1970-01-01 00:00:00'
             elif 'bit' in column_type:
