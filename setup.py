@@ -3,7 +3,6 @@ import sys
 from setuptools import setup
 
 install_requires = [
-    'mysql-python>=1.2.3', 
     'psycopg2>=2.4.2',
     'pyyaml>=3.10.0',
     'pytz',
