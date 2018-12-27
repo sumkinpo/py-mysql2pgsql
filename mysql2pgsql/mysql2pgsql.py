@@ -16,7 +16,7 @@ class Mysql2Pgsql(object):
         self.run_options = options
         try:
             self.file_options = Config(options.file, True).options
-        except ConfigurationFileInitialized, e:
+        except ConfigurationFileInitialized as e:
             print_red(e.message)
             raise e
 
