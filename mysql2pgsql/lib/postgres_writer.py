@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import re
-from cStringIO import StringIO
+from io import StringIO
 from datetime import datetime, date, timedelta
 
 from psycopg2.extensions import QuotedString, Binary, AsIs
