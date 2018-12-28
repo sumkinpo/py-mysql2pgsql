@@ -80,11 +80,11 @@ def status_logger(f):
             if 'table' in kwargs:
                 table = kwargs['table']
             else:
-                table = find_first(list(args) + kwargs.values(), lambda c: c.__class__ is MysqlReader.Table)
+                table = find_first(list(args) + list(kwargs.values()), lambda c: c.__class__ is MysqlReader.Table)
             assert table
-            print_table_actions(statuses[f.func_name]['start'] % table.name)
+            print_table_actions(statuses[f.__name__]['start'] % table.name)
             ret = f(*args, **kwargs)
-            print_table_actions(statuses[f.func_name]['finish'] % table.name)
+            print_table_actions(statuses[f.__name__]['finish'] % table.name)
             return ret
         else:
             return f(*args, **kwargs)

@@ -121,7 +121,7 @@ class PostgresWriter(object):
                 row[index] = '1970-01-01 00:00:00'
             elif 'bit' in column_type:
                 row[index] = bin(ord(row[index]))[2:]
-            elif isinstance(row[index], (str, unicode, basestring)):
+            elif isinstance(row[index], (str, bytes)):
                 if column_type == 'bytea':
                     row[index] = Binary(row[index]).getquoted()[1:-8] if row[index] else row[index]
                 elif 'text[' in column_type:
@@ -182,7 +182,7 @@ class PostgresWriter(object):
             serial_key_sql.append('DROP SEQUENCE IF EXISTS %s CASCADE;' % serial_key_seq)
             serial_key_sql.append("""CREATE SEQUENCE %s INCREMENT BY 1
                                   NO MAXVALUE NO MINVALUE CACHE 1;""" % serial_key_seq)
-            serial_key_sql.append('SELECT pg_catalog.setval(%s, %s, true);' % (QuotedString(serial_key_seq).getquoted(), maxval))
+            serial_key_sql.append('SELECT pg_catalog.setval(%s, %s, true);' % (serial_key_seq, maxval))
 
         table_sql.append('DROP TABLE IF EXISTS "%s" CASCADE;' % table.name)
         table_sql.append('CREATE TABLE "%s" (\n%s\n)\nWITHOUT OIDS;' % (table.name, columns))

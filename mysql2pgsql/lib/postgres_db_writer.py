@@ -55,7 +55,7 @@ class PostgresDbWriter(PostgresWriter):
             try:
                 if self.row_limit is not None and self._row_counter >= self.row_limit:
                     raise RowLimitError()
-                row = list(self.data.next())
+                row = list(self.data.__next__())
                 self._row_counter += 1
             except RowLimitError:
                 # fake stop iteration
@@ -71,7 +71,7 @@ class PostgresDbWriter(PostgresWriter):
             else:
                 self.processor(self.table, row)
                 try:
-                    return '%s\n' % ('\t'.join(row))
+                    return '%s\n' % ('\t'.join(r if isinstance(r, str) else r.decode() for r in row))
                 except UnicodeDecodeError:
                     return '%s\n' % ('\t'.join(r.decode('utf8') for r in row))
             finally:
