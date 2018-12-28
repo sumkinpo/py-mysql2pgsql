@@ -182,7 +182,7 @@ class PostgresWriter(object):
             serial_key_sql.append('DROP SEQUENCE IF EXISTS %s CASCADE;' % serial_key_seq)
             serial_key_sql.append("""CREATE SEQUENCE %s INCREMENT BY 1
                                   NO MAXVALUE NO MINVALUE CACHE 1;""" % serial_key_seq)
-            serial_key_sql.append('SELECT pg_catalog.setval(%s, %s, true);' % (serial_key_seq, maxval))
+            serial_key_sql.append("SELECT pg_catalog.setval('%s', %s, true);" % (serial_key_seq, maxval))
 
         table_sql.append('DROP TABLE IF EXISTS "%s" CASCADE;' % table.name)
         table_sql.append('CREATE TABLE "%s" (\n%s\n)\nWITHOUT OIDS;' % (table.name, columns))
